@@ -13,7 +13,10 @@ app.use(cors());
 app.use(bodyParser.json());
 
 /* creating connection to mongodb */
-mongoose.connect("mongodb://localhost:27017/task-attention");
+mongoose.connect("mongodb://localhost:27017/task-attention", {
+  useMongoClient: true,
+  /* other options */
+});
 const db = mongoose.connection;
 
 db.on("er", err => {
