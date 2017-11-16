@@ -28,7 +28,7 @@ db.once("open", () => {
 /* ------------------------------------- */
 
 /* making get request using express and mongodb */
-app.get("/", async (req, res) => {
+app.get("/", async(req, res) => {
   console.log("get latest record");
   try {
     const tasks = await TaskModel.find({});
@@ -38,7 +38,7 @@ app.get("/", async (req, res) => {
   }
 });
 
-app.post("/", async (req, res) => {
+app.post("/", async(req, res) => {
   try {
     console.log("req.body in post :", req.body);
     const data = req.body;
@@ -46,37 +46,44 @@ app.post("/", async (req, res) => {
     await TaskModel.create(data, (err, task) => {
       taskID = task._id;
     });
-    res.status(200).json({ id: taskID });
+    res.status(200).json({
+      id: taskID
+    });
   } catch (err) {
     console.log("post error:", err);
   }
 });
 
 // push date to thoughtsToStop
-app.put("/update-stage/:id",  (req, res) => {
+app.put("/update-stage/:id", (req, res) => {
   try {
     console.log(typeof req.body);
     console.log("stop body: ", req.body);
 
-    req.body.forEach( async obj =>  {
-      await TaskModel.findOneAndUpdate(
-        { _id: req.params.id },
-        { [obj.dbActionType]: { [obj.taskParm]: obj.data } }
-      );
+    req.body.forEach(async obj => {
+      await TaskModel.findOneAndUpdate({
+        _id: req.params.id
+      }, {
+        [obj.dbActionType]: {
+          [obj.taskParm]: obj.data
+        }
+      });
     });
-    res.status(200).send({ response: "updated data" });
+    res.status(200).send({
+      response: "updated data"
+    });
   } catch (err) {
     console.log("problem with update", err);
   }
 });
 
-app.get("/results/latest-result", async (req, res) => {
+app.get("/results/latest-result", async(req, res) => {
   try {
-    const latestRecord = await TaskModel.findOne(
-      {},
-      {},
-      { sort: { taskName: -1 } }
-    ).exec((err, result) => {
+    const latestRecord = await TaskModel.findOne({}, {}, {
+      sort: {
+        initTaskTime: -1
+      }
+    }).exec((err, result) => {
       console.log("sending result", result);
     });
 
@@ -86,11 +93,12 @@ app.get("/results/latest-result", async (req, res) => {
   }
 });
 
-app.get("/results/ten-latests-results", async (req, res) => {
-  console.log('ss')
+app.get("/results/ten-latests-results", async(req, res) => {
   try {
-    const latestsRecords = await TaskModel.find()
-      .sort('-date')
+    const latestsRecords = await TaskModel.find({})
+      .sort({
+        initTaskTime: -1
+      })
       .limit(10)
       .exec((err, result) => {
         console.log("err:", err, "results:", result);
